@@ -91,7 +91,7 @@ export default class DistanceSetting extends Component {
     return (
       <div>
         <div className={notValidNumber? "form-group has-danger": "form-group"}>
-          <Label><h4>Set Buffer Distance</h4></Label>
+          <Label><h5>Enter buffer distance in meters</h5></Label>
           <p style={{color: "#d44950"}}>
             <input style={{width:"75%", display:"inline-block", marginRight: "2%"}}
               className={notValidNumber?"form-control form-control-danger":"form-control"}
@@ -102,7 +102,7 @@ export default class DistanceSetting extends Component {
           </p>
         </div>
 
-        <div className="card" style={{marginTop:"3%", backgroundColor: "inherit"}}>
+        {/*<div className="card" style={{marginTop:"3%", backgroundColor: "inherit"}}>
             <div className="card-block">
               <h5 className="card-title">Usage notes</h5>
               <ul className="card-text">
@@ -120,6 +120,7 @@ export default class DistanceSetting extends Component {
             </div>
           </div>
           <br></br>
+        */}
 
         <div className={emptyName? "form-group has-danger": "form-group"}>
           <Label><h5>Type a New Layer Name</h5></Label>

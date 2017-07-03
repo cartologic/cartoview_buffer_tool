@@ -40,7 +40,7 @@ class ConfigForm extends Component {
       label: "Select Layer",
       component: LayersList,
       props: {
-        title: "Select Point Layer",
+        title: "Select Layer",
         onComplete: (layerName) => this.updateConfig({layerName})
       }
     },
@@ -49,10 +49,15 @@ class ConfigForm extends Component {
       component: DistanceSetting,
       props: {
         onChange: (distance) => this.updateConfig({distance}, true),
-        onComplete: ({newLayerName, distance}) => this.updateConfig({newLayerName, distance, loading: true},false, ()=>{
+        onComplete: ({newLayerName, distance}) => {
+          // convert distance to degrees by the average value of
+          // length of a degree of a latitude
+          // https://en.wikipedia.org/wiki/Longitude#Length_of_a_degree_of_longitude
+          distance = distance / 111132
+          this.updateConfig({newLayerName, distance, loading: true},false, ()=>{
           CartoviewBufferClient.generateLayer(this.state.config)
-          .then((serverRes) => {this.updateConfig({successState: serverRes.success, loading: false}, true)})
-        }),
+          .then((serverRes) => {this.updateConfig({successState: serverRes.success, loading: false, typeName:serverRes.type_name}, true)})
+        })},
         filter: a => a.attribute_type.toLowerCase() != "xsd:string"
       }
     },

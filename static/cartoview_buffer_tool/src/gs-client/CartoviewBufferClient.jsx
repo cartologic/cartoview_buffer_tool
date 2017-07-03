@@ -2,7 +2,6 @@ import slugify from 'slugify';
 
 class CartoviewBufferClient {
   generateLayer(obj){
-    console.log("obj: ", obj);
     let formValues = obj
     let form = new FormData();
     form.append("distance", formValues.distance);
