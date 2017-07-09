@@ -41,7 +41,8 @@ class ConfigForm extends Component {
       component: LayersList,
       props: {
         title: "Select Layer",
-        onComplete: (layerName) => this.updateConfig({layerName})
+        onComplete: (layerName) => this.updateConfig({layerName}),
+        layerType:""
       }
     },
     {

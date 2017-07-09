@@ -26,6 +26,7 @@ def index(request):
     request = request
     context = {
         "v": __version__,
+        "APP_NAME":APP_NAME
     }
     return render(request, "%s/index.html" % APP_NAME, context)
 
