@@ -1,6 +1,5 @@
 import { Component } from 'react';
 import slugify from 'slugify';
-import { Button } from 'reactstrap';
 
 export default class GenerateLayer extends Component {
 
@@ -24,6 +23,6 @@ export default class GenerateLayer extends Component {
      })
   }
   render(){
-    return <Button onClick={()=>{this.props.onComplete(); this.onClick();}}>Generate Layer</Button>
+    return <button class="btn btn-primary" onClick={()=>{this.props.onComplete(); this.onClick();}}>Generate Layer</button>
   }
 }

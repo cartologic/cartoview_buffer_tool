@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 // components
 import LayersList from './components/LayersList.jsx'
 import Navigator from './components/Navigator.jsx'
+import AboutPage from './components/AboutPage.jsx'
 import DistanceSetting from './components/DistanceSetting.jsx'
 import NewLayerName from './components/NewLayerName.jsx'
 import Results from './components/Results.jsx'
@@ -38,9 +39,33 @@ class ConfigForm extends Component {
     return(
     <nav className="navbar navbar-default">
       <div className="container">
-        <h4 style={{color:"dimgray"}}>Cartoview Buffer Tool</h4>
+        <h4 style={{color:"dimgray"}}>Buffer Tool</h4>
       </div>
     </nav>
+    )
+  }
+
+
+  aboutHeader(){
+    return(
+      <h3>Buffer Tool</h3>
+    )
+  }
+
+
+  aboutBody(){
+    return(
+    <div>
+      <p>
+        Takes a feature collection and applies a buffer to each feature. The buffer distance can be a fixed value for all features, a variable value, with the values taken from an attribute in the feature collection, or it could be a combination of the two
+      </p>
+
+      <div className="row">
+        <div className='col-xs-12 col-md-10 col-md-offset-2'>
+          <img className='img-responsive' src={`/static/${APP_NAME}/images/bufferfc.png`} alt="" />
+        </div>
+      </div>
+    </div>
     )
   }
 
@@ -48,6 +73,14 @@ class ConfigForm extends Component {
   render() {
     var {config, step, saved} = this.state
     const steps = [{
+      label: "About",
+      component: AboutPage,
+      props: {
+        onComplete: () => this.updateConfig({}),
+        aboutHeader: this.aboutHeader(),
+        aboutBody: this.aboutBody()
+      }
+    },{
       label: "Select Layer",
       component: LayersList,
       props: {
