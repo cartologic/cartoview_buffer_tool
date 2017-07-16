@@ -9,6 +9,9 @@ import NewLayerName from './components/NewLayerName.jsx'
 import Results from './components/Results.jsx'
 import CartoviewBufferClient from './gs-client/CartoviewBufferClient.jsx'
 
+import {DefaultModalStyle} from './constants/constants.jsx'
+import Modal from 'react-modal';
+
 import "../css/styler.css";
 
 class ConfigForm extends Component {
@@ -16,35 +19,15 @@ class ConfigForm extends Component {
     config: {},
     step: 0,
     saved: false,
-    loading: true
+    loading: true,
+
+    modalIsOpen: false
   }
 
 
   goToStep(step){
     this.setState({step});
   }
-
-
-  updateConfig(newConfig, sameStep, callBack){
-    var {config, step} = this.state;
-    Object.assign(config, newConfig);
-    if(!sameStep) step++;
-    const saved = false;
-    this.setState({config, step, saved});
-    if (callBack) callBack();
-  }
-
-
-  navBar(){
-    return(
-    <nav className="navbar navbar-default">
-      <div className="container">
-        <h4 style={{color:"dimgray"}}>Buffer Tool</h4>
-      </div>
-    </nav>
-    )
-  }
-
 
   aboutHeader(){
     return(
@@ -70,17 +53,79 @@ class ConfigForm extends Component {
   }
 
 
+  updateConfig(newConfig, sameStep, callBack){
+    var {config, step} = this.state;
+    Object.assign(config, newConfig);
+    if(!sameStep) step++;
+    const saved = false;
+    this.setState({config, step, saved});
+    if (callBack) callBack();
+  }
+
+
+  helpModal(){
+    return(
+      <Modal className="modal-dialog"
+        isOpen={this.state.modalIsOpen}
+        style={DefaultModalStyle}
+        onRequestClose={()=>{this.setState({modalIsOpen: false})}}>
+        <div className="">
+          <div className="panel panel-default">
+            <div className="panel-heading">
+              <div className="row">
+                <div className="col-xs-6 col-md-6">
+                  {this.aboutHeader()}
+                </div>
+                <div className="col-xs-1 col-md-1 col-md-offset-5 col-xs-offset-5">
+                  <div className="pull-right">
+                    <a className="btn btn btn-primary"
+                      onClick={(e) =>{ e.preventDefault(); this.setState({modalIsOpen:false}) } }>
+                      x
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="panel-body">
+              <div className="row">
+                <div className="col-md-12">
+                  {this.aboutBody()}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
+
+  navBar(){
+    return(
+    <nav className="navbar navbar-default">
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-6 col-md-6">
+            <h4 style={{color:"dimgray"}}>Buffer Tool</h4>
+          </div>
+          <div className="col-xs-1 col-md-1 col-md-offset-5 col-xs-offset-4">
+            <button type="button"
+              style={{marginTop:"8%"}}
+              className="btn btn-primary"
+              onClick={()=>{this.setState({modalIsOpen: true})}}>
+              ?
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+    )
+  }
+
+
   render() {
     var {config, step, saved} = this.state
     const steps = [{
-      label: "About",
-      component: AboutPage,
-      props: {
-        onComplete: () => this.updateConfig({}),
-        aboutHeader: this.aboutHeader(),
-        aboutBody: this.aboutBody()
-      }
-    },{
       label: "Select Layer",
       component: LayersList,
       props: {
@@ -118,6 +163,7 @@ class ConfigForm extends Component {
 
     return  (
       <div className="col-md-12">
+        {this.helpModal()}
         <div className="row">{this.navBar()}</div>
         <div className="row">
           <Navigator steps={steps} step={step} onStepSelected={(step)=>this.goToStep(step)}/>
