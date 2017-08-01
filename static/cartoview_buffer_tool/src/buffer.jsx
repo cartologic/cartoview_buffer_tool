@@ -127,13 +127,13 @@ class ConfigForm extends Component {
     var {config, step, saved} = this.state
     const steps = [
       {
-        label: "Select Point Layer",
+        label: "Select Layer",
         component: LayersList,
         props: {
           onComplete: (layerName) => {
             this.updateConfig({layerName})
           },
-          layerType: "Point",
+          layerType: "",
           step: step
         }
       }, {
@@ -159,17 +159,26 @@ class ConfigForm extends Component {
                   loading: false,
                   typeName: serverRes.type_name
                 }, true)
+              }).catch((err) => {
+                this.updateConfig({
+                  successState: false,
+                  loading: false
+                }, true, () => {
+                  console.error(err);
+                })
               })
             })
           },
           filter: a => a.attribute_type.toLowerCase() != "xsd:string",
-          onPrevious: () => this.goToStep(step - 1)
+          onPrevious: () => this.goToStep(step - 1),
+          config: this.state.config
         }
       }, {
         label: "Results",
         component: Results,
         props: {
-          config: this.state.config
+          config: this.state.config,
+          typeName: this.state.config.typeName
         }
       }
     ];
