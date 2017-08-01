@@ -14,9 +14,13 @@ export default class DistanceSetting extends Component {
   state = {
     attrs: [],
     notValidNumber: false,
-    distance: '',
+    distance: this.props.config
+      ? (this.props.config.distance * 111132)
+      : '',
     emptyName: false,
-    newLayerName: ''
+    newLayerName: this.props.config
+      ? this.props.config.newLayerName
+      : ''
   }
 
   componentDidMount() {
