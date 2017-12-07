@@ -106,3 +106,5 @@ ENV/
 
 # api.py development phase
 api_dev.py
+
+.DS_STORE
