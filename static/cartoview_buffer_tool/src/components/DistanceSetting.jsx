@@ -1,182 +1,96 @@
-import {Component} from 'react';
-import WMSClient from "../gs-client/WMSClient.jsx";
-import {
-  ListGroup,
-  ListGroupItem,
-  Button,
-  FormGroup,
-  Label,
-  Input
-} from 'reactstrap';
-import slugify from 'slugify';
+import { Loader, NextButton, PreviousButton } from './CommonComponents'
 
-export default class DistanceSetting extends Component {
-  state = {
-    attrs: [],
-    notValidNumber: false,
-    distance: this.props.config
-      ? (this.props.config.distance * 111132)
-      : '',
-    emptyName: false,
-    newLayerName: this.props.config
-      ? this.props.config.newLayerName
-      : ''
+import { Component } from 'react'
+import React from 'react'
+import t from 'tcomb-form'
+
+const alphaNumericRegex = /(^[a-zA-Z][a-zA-Z0-9_]*)|(^[_][a-zA-Z0-9_]+$)/
+const Form = t.form.Form
+const AlphaNumeric = t.refinement( t.String, ( n ) => {
+  let valid = false
+  if ( n.match( alphaNumericRegex ) ) {
+    valid = true
   }
-
-  componentDidMount() {
-    const {layerName} = this.props.config;
-    WMSClient.getLayerAttributes(layerName).then((attrs) => {
-      this.setState({attrs});
-    });
+  return valid
+} )
+AlphaNumeric.getValidationErrorMessage = ( value ) => {
+  if ( !value ) {
+    return 'Required'
+  } else if ( !value.match( alphaNumericRegex ) ) {
+    return 'Only (AlphaNumeric,_) Allowed and numbers not allowed as prefix'
   }
-
-  validate_distance() {
-    const {distance} = this.state
-    if (!distance || isNaN(Number(distance))) {
-      this.setState({notValidNumber: true});
-      return false
-    } else {
-      this.setState({notValidNumber: false});
-      return true
+}
+const formSchema = t.struct( {
+  title: AlphaNumeric,
+  distance: t.Number
+} )
+const options = {
+  fields: {
+    title: {
+      label: "Layer Name",
+      help: "Enter New Layer Name"
+    },
+    distance: {
+      label: "Distance",
+      help: "Enter Distance in Meter"
+    },
+  }
+}
+export default class BufferSettings extends Component {
+  constructor( props ) {
+    super( props )
+    this.state = {
+      value: {
+        title: this.props.config.newLayerName ? this.props.config.newLayerName : "",
+        distance: this.props.config.distance ? this.props.config.distance *
+          111132 : null,
+      },
+      loading: false,
+      error: false
     }
   }
-
-  validate_name() {
-    const {newLayerName} = this.state
-    if (!newLayerName) {
-      this.setState({emptyName: true});
-      return false
-    } else {
-      this.setState({emptyName: false});
-      return true
+  checkLayerNameExist = ( name ) => {
+    const { urls } = this.props
+    this.setState( { loading: true, error: false } )
+    return fetch( `${urls.layersAPI}?typename=geonode:${name}` ).then(
+      response => response.json() )
+  }
+  onComplete = () => {
+    const value = this.form.getValue()
+    if ( value ) {
+      this.checkLayerNameExist( value.title ).then( response => {
+        if ( response.objects.length == 0 ) {
+          this.props.onComplete( {newLayerName:value.title,distance:value.distance} )
+        } else {
+          this.setState( { loading: false, error: true } )
+        }
+      } )
     }
   }
-
-  onComplete() {
-    const {newLayerName, distance} = this.state
-    if (this.validate_distance() && this.validate_name())
-      this.props.onComplete({newLayerName, distance})
+  onChange = ( value ) => {
+    this.setState( { value: value } )
   }
-
-  renderHeader() {
-    return (
-      <div>
-        <div className="row">
-          <div className="col-xs-5 col-md-4">
-            <h4>Set Buffer Distance</h4>
-          </div>
-          <div className="col-xs-7 col-md-8">
-            <button type="button" className="btn btn-primary btn-sm pull-right disabled" onMouseDown={() => {
-              this.onComplete()
-            }}>
-              {'Next >>'}
-            </button>
-
-            <button style={this.props.step == 0
-              ? {
-                display: "inline-block",
-                margin: "0px 3px 0px 3px",
-                visibility: 'hidden'
-              }
-              : {
-                display: "inline-block",
-                margin: "0px 3px 0px 3px"
-              }} className="btn btn-primary btn-sm pull-right" onClick={() => this.props.onPrevious()}>{"<< Previous"}</button>
-          </div>
-        </div>
-        <br></br>
-        <div className="row">
-          <div className="col-xs-5 col-md-4">
-            <h4></h4>
-          </div>
-          <div className="col-xs-7 col-md-8">
-            <button type="button" className="btn btn-primary btn-sm pull-right" onMouseDown={() => {
-              this.onComplete()
-            }}>
-              Generate Layer
-            </button>
-          </div>
-        </div>
-      </div>
-
-    )
-  }
-
   render() {
-    const {attrs, notValidNumber, distance, newLayerName, emptyName} = this.state;
-    if (attrs.length == 0) {
-      return <div style={{
-        margin: "10% auto auto"
-      }} className="loading"></div>
-    }
-
-    const {onComplete, filter, config, onChange, showResults} = this.props;
-    const isGeom = (a) => {
-      return a.attribute_type.toLowerCase().indexOf("gml:") == 0;
-    }
-
     return (
       <div>
-        {this.renderHeader()}
-        <div className={notValidNumber
-          ? "form-group has-danger"
-          : "form-group"}>
-          <Label>
-            <h5>Enter buffer distance in meters</h5>
-          </Label>
-          <p style={{
-            color: "#d44950"
-          }}>
-            <input style={{
-              width: "75%",
-              display: "inline-block",
-              marginRight: "2%"
-            }} className={notValidNumber
-              ? "form-control form-control-danger"
-              : "form-control"} type='text' value={distance
-              ? distance
-              : ''} onChange={(e) => {
-              this.setState({
-                distance: e.target.value
-              }, () => {
-                this.validate_distance()
-              })
-            }}/> {notValidNumber
-              ? "Enter a valid number!"
-              : ""}
-          </p>
+        <div className="row">
+          <div className="col-xs-5 col-md-4">
+            <h4>{'Buffer Settings'}</h4>
+          </div>
+          <div className="col-xs-7 col-md-8">
+            <NextButton message={"Save"} clickAction={() => this.onComplete()} />
+            <PreviousButton clickAction={() => this.props.onPrevious()} />
+          </div>
         </div>
-
-        <div className={emptyName
-          ? "form-group has-danger"
-          : "form-group"}>
-          <Label>
-            <h5>Type a New Layer Name</h5>
-          </Label>
-          <p style={{
-            color: "#d44950"
-          }}>
-            <input style={{
-              width: "75%",
-              display: "inline-block",
-              marginRight: "2%"
-            }} className={emptyName
-              ? "form-control form-control-danger"
-              : "form-control"} type='text' value={newLayerName
-              ? newLayerName
-              : ''} onChange={(e) => {
-              this.setState({
-                newLayerName: e.target.value
-              }, () => {
-                this.validate_name()
-              })
-            }}/> {emptyName
-              ? "Enter layer name!"
-              : ""}
-          </p>
-        </div>
+        {!this.state.loading && this.state.error && <p className="text-danger">{"Layer Name already exist please choose another one"}</p>}
+        {this.state.loading && <Loader />}
+        <Form
+          ref={(form) => this.form = form}
+          value={this.state.value}
+          type={formSchema}
+          onChange={this.onChange}
+          options={options} />
       </div>
     )
-
   }
 }

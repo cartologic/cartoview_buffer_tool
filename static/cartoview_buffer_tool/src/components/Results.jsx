@@ -1,18 +1,16 @@
-import {Component} from 'react';
-import GenerateLayer from './GenerateLayer.jsx'
+import React, { Component } from 'react'
 
+import { Loader } from './CommonComponents'
 // using reactstrap Forms
-import {Alert, Link, Button} from 'reactstrap';
-
 export default class Results extends Component {
   note() {
     return (
       <div className="panel panel-info">
-        <div className="panel-heading">Process Successfully Completed</div>
+        <div className="panel-heading">{"Process Successfully Completed"}</div>
         <div className="panel-body">
           <div className="row">
             <div className="col-xs-12 col-md-12">
-              The result of this process has been published as a portal layer. You can view the result and further configure the properties and set permission of the resulting Layer:
+              {"The result of this process has been published as a portal layer. You can view the result and further configure the properties and set permission of the resulting Layer:"}
               <span style={{
                 fontWeight: "bold"
               }}>
@@ -27,7 +25,7 @@ export default class Results extends Component {
             <div className="col-xs-10 col-md-3 col-md-offset-9 col-xs-offset-1">
               <a className="btn btn-primary" href={`/layers/${this.props.typeName}`} style={{
                 float: "right"
-              }} role="button">Layer Details</a>
+              }} role="button">{"Layer Details"}</a>
             </div>
           </div>
 
@@ -35,22 +33,13 @@ export default class Results extends Component {
       </div>
     )
   }
-
   render() {
-    const {successState, layerName, loading, newLayerName, typeName} = this.props.config;
-
-    // loading
-    if (loading)
-      return <div style={{
-        margin: "10% auto auto"
-      }} className="loading"></div>
-
-    else {
-      // Success !!!
-      {
-        return(successState
-          ? this.note()
-          : <div className="panel panel-danger">
+    const { config, typeName, loading } = this.props
+    return (
+      <div>
+        {loading&& <Loader/>}
+        {!loading&& config.successState && this.note() }
+        {!loading&& !config.successState && <div className="panel panel-danger">
             <div className="panel-heading">Process Faild</div>
             <div className="panel-body">
               <div className="row">
@@ -59,9 +48,8 @@ export default class Results extends Component {
                 </div>
               </div>
             </div>
-          </div>)
-      }
-    }
-
+          </div> }
+      </div>
+    )
   }
 }

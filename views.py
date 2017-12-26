@@ -26,7 +26,7 @@ def index(request):
     request = request
     context = {
         "v": __version__,
-        "APP_NAME":APP_NAME,
+        "APP_NAME": APP_NAME,
         'username': request.user
     }
     return render(request, "%s/index.html" % APP_NAME, context)
@@ -86,9 +86,10 @@ def generate_layer(request):
         # check if user has permission to perform this method on geonode
         qs = _get_permitted_queryset(request, 'base.view_resourcebase')
         if not qs.filter(typename__exact=layer):
-            return HttpResponse("permission error")
+            return HttpResponse(json.dumps({"error": "permission error"}), content_type="application/json",
+                                status=405)
 
-        url = geoserver_url+"wps"
+        url = geoserver_url + "wps"
 
         payload = """<p0:Execute
           xmlns:p0="http://www.opengis.net/wps/1.0.0"
@@ -172,17 +173,22 @@ def generate_layer(request):
         headers = {
             'content-type': "application/xml",
             'cache-control': "no-cache",
-            }
+        }
 
-        response = requests.request("POST", url=url, data=payload, headers=headers)
-        print response
-        print response.text
-        # if there is no errors while creating the layer in geoserver
+        response = requests.request(
+            "POST", url=url, data=payload, headers=headers)
         response_layer_name = response.text.split(':').pop(1)
         if response_layer_name == new_layer_name:
             resource = gs_catalog.get_resource(response_layer_name)
-            type_name = "%s:%s" % (resource.workspace.name.encode('utf-8'), resource.name.encode('utf-8'))
+            type_name = "%s:%s" % (resource.workspace.name.encode(
+                'utf-8'), resource.name.encode('utf-8'))
             update_geonode(request, resource)
-            return HttpResponse(json.dumps({'type_name':type_name, 'success': True}), content_type="application/json")
+            return HttpResponse(json.dumps({'type_name': type_name,
+                                            'success': True}),
+                                content_type="application/json",
+                                status=200)
         else:
-            return HttpResponse(json.dumps({'success': False, 'server_response': response.text}), content_type="application/json")
+            return HttpResponse(json.dumps({'success': False,
+                                            'server_response': response.text}),
+                                content_type="application/json",
+                                status=500)
