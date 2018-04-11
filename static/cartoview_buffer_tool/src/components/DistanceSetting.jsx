@@ -4,11 +4,12 @@ import { Component } from 'react'
 import React from 'react'
 import t from 'tcomb-form'
 
-const alphaNumericRegex = /(^[a-zA-Z][a-zA-Z0-9_]*)|(^[_][a-zA-Z0-9_]+$)/
+const alphaNumericRegex = /(^[A-Za-z_][A-Za-z0-9_]+$)/
+const regx = RegExp('^[A-Za-z_][A-Za-z0-9_]+$')
 const Form = t.form.Form
 const AlphaNumeric = t.refinement( t.String, ( n ) => {
   let valid = false
-  if ( n.match( alphaNumericRegex ) ) {
+  if ( regx.test(n)) {
     valid = true
   }
   return valid
