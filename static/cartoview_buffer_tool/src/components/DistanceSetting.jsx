@@ -61,7 +61,7 @@ export default class BufferSettings extends Component {
   checkLayerNameExist = ( name ) => {
     const { urls } = this.props
     this.setState( { loading: true, error: false } )
-    return fetch( `${urls.layersAPI}?typename=geonode:${name}` ).then(
+    return fetch( `${urls.layersAPI}?typename=${this.props.workspace}:${name}` ).then(
       response => response.json() )
   }
   onComplete = () => {

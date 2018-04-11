@@ -29,7 +29,8 @@ def index(request):
     context = {
         "v": __version__,
         "APP_NAME": APP_NAME,
-        'username': request.user
+        'username': request.user,
+        "workspace": settings.DEFAULT_WORKSPACE
     }
     return render(request, "%s/index.html" % APP_NAME, context)
 
