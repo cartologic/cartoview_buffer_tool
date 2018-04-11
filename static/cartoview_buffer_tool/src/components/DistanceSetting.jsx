@@ -29,9 +29,24 @@ AlphaNumeric.getValidationErrorMessage = ( value ) => {
     }
   }
 }
+const distance = t.refinement(t.Number, (n)=>{
+  let valid = true
+  if(n > 1000000){
+    valid = false
+  }
+  return valid
+})
+distance.getValidationErrorMessage = (value) => {
+  if ( !value ) {
+    return 'Required'
+  } else {
+    if( value > 1000000)
+      return 'Distance Value is too high!'
+  }
+}
 const formSchema = t.struct( {
   title: AlphaNumeric,
-  distance: t.Number
+  distance: distance
 } )
 const options = {
   fields: {
