@@ -14,6 +14,8 @@ from geonode.layers.models import Layer, Attribute
 from geonode.geoserver.helpers import ogc_server_settings
 from geoserver.catalog import Catalog
 
+from django.conf import settings
+
 from . import APP_NAME, __version__
 
 
@@ -27,7 +29,8 @@ def index(request):
     context = {
         "v": __version__,
         "APP_NAME": APP_NAME,
-        'username': request.user
+        'username': request.user,
+        "workspace": settings.DEFAULT_WORKSPACE
     }
     return render(request, "%s/index.html" % APP_NAME, context)
 
@@ -91,7 +94,8 @@ def generate_layer(request):
 
         url = geoserver_url + "wps"
 
-        payload = """<p0:Execute
+        payload = """
+        <p0:Execute
           xmlns:p0="http://www.opengis.net/wps/1.0.0"
           xmlns:geonode="http://www.geonode.org/" service="WPS" version="1.0.0">
           <p1:Identifier
@@ -119,7 +123,7 @@ def generate_layer(request):
                           <p0:Body>
                             <p2:GetFeature
                               xmlns:p2="http://www.opengis.net/wfs" service="WFS" version="1.1.0" outputFormat="GML2">
-                              <p2:Query typeName="{}" srsName="EPSG:4326"/>
+                              <p2:Query typeName="{}" />
                             </p2:GetFeature>
                           </p0:Body>
                         </p0:Reference>
@@ -130,14 +134,6 @@ def generate_layer(request):
                         </p1:Identifier>
                         <p0:Data>
                           <p0:LiteralData>{}</p0:LiteralData>
-                        </p0:Data>
-                      </p0:Input>
-                      <p0:Input>
-                        <p1:Identifier
-                          xmlns:p1="http://www.opengis.net/ows/1.1">attributeName
-                        </p1:Identifier>
-                        <p0:Data>
-                          <p0:LiteralData></p0:LiteralData>
                         </p0:Data>
                       </p0:Input>
                     </p0:DataInputs>
@@ -151,6 +147,14 @@ def generate_layer(request):
                   </p0:Execute>
                 </p0:Body>
               </p0:Reference>
+            </p0:Input>
+            <p0:Input>
+              <p1:Identifier
+                xmlns:p1="http://www.opengis.net/ows/1.1">workspace
+              </p1:Identifier>
+              <p0:Data>
+                <p0:LiteralData>{}</p0:LiteralData>
+              </p0:Data>
             </p0:Input>
             <p0:Input>
               <p1:Identifier
@@ -168,7 +172,8 @@ def generate_layer(request):
               </p1:Identifier>
             </p0:RawDataOutput>
           </p0:ResponseForm>
-        </p0:Execute>""".format(layer, distance, new_layer_name)
+        </p0:Execute>
+        """.format(layer, distance, settings.DEFAULT_WORKSPACE, new_layer_name)
 
         headers = {
             'content-type': "application/xml",

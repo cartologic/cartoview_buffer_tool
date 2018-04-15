@@ -143,7 +143,7 @@ class BufferTool extends Component {
   render() {
     var { config, step, saved, errorMessage, error, currentLayer, loading } =
     this.state
-    const { username, urls } = this.props
+    const { username, urls, workspace } = this.props
     const steps = [
       {
         label: "Select Layer",
@@ -172,6 +172,7 @@ class BufferTool extends Component {
           urls,
           username,
           config,
+          workspace,
           onPrevious: () => this.goToStep( step - 1 ),
           config: this.state.config
         }
