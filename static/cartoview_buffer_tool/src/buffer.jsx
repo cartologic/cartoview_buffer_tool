@@ -193,7 +193,7 @@ class BufferTool extends Component {
         <hr />
         <div className="flex-element styler-nav current-info">
           {currentLayer && <a target="_blank" href={`${currentLayer.detail_url}`}>{`Layer: ${currentLayer.title}`}</a>}
-          {config && config.distance && <span>{`Distance: ${config.distance * distanceRatio}`}</span>}
+          {config && config.distance && <span>{`Distance: ${Math.round(config.distance * distanceRatio)}`}</span>}
         </div>
         {(currentLayer || config.distance) && <hr />}
         <div className="row">
