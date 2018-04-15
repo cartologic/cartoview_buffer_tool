@@ -36,7 +36,6 @@
     proxy: PROXY_URL,
     rest:appManagerRest,
     layersAPI:"{% url 'api_dispatch_list' api_name='api' resource_name='layers' %}",
-    stylesUrl: "{% url 'cartoview_heatmap_styler.index' %}styles",
     {% if 'access_token' in request.session %}
         wfsURL : "{{ GEOSERVER_BASE_URL }}wfs?access_token={{request.session.access_token}}",
         wmsURL : "{{ GEOSERVER_BASE_URL }}wms?access_token={{request.session.access_token}}",
@@ -53,11 +52,12 @@
   };
   const APP_NAME = "{{APP_NAME}}"
   const username = '{{username}}'
+  const workspace = "{{workspace}}"
 </script>
   <script src="{{ STATIC_URL }}cartoview_buffer_tool/dist/commons.js?v={{v}}"></script>
   <script src="{{ STATIC_URL }}cartoview_buffer_tool/dist/BufferTool.bundle.js?v={{v}}"></script>  
   <script type="text/javascript">
-    var viewer= new Viewer("config-form-ct",username,URLS)
+    var viewer= new Viewer("config-form-ct",username,URLS, workspace)
     viewer.view()
   </script>
 {% endblock %}

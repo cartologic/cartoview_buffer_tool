@@ -4,25 +4,49 @@ import { Component } from 'react'
 import React from 'react'
 import t from 'tcomb-form'
 
-const alphaNumericRegex = /(^[a-zA-Z][a-zA-Z0-9_]*)|(^[_][a-zA-Z0-9_]+$)/
+const alphaNumericRegex = /(^[A-Za-z_][A-Za-z0-9_]+$)/
+const regx = RegExp('^[A-Za-z_][A-Za-z0-9_]+$')
 const Form = t.form.Form
 const AlphaNumeric = t.refinement( t.String, ( n ) => {
   let valid = false
-  if ( n.match( alphaNumericRegex ) ) {
+  if ( regx.test(n)) {
     valid = true
+  }
+  if(n.length > 63){
+    valid = false
   }
   return valid
 } )
 AlphaNumeric.getValidationErrorMessage = ( value ) => {
   if ( !value ) {
     return 'Required'
-  } else if ( !value.match( alphaNumericRegex ) ) {
-    return 'Only (AlphaNumeric,_) Allowed and numbers not allowed as prefix'
+  } else {
+    if ( !value.match( alphaNumericRegex ) ) {
+      return 'Only (AlphaNumeric,_) Allowed and numbers not allowed as prefix'
+    }
+    if(value.length > 63){
+      return "Layer name cannot exceed the limit of 63 characters!"
+    }
+  }
+}
+const distance = t.refinement(t.Number, (n)=>{
+  let valid = true
+  if(n > 1000000){
+    valid = false
+  }
+  return valid
+})
+distance.getValidationErrorMessage = (value) => {
+  if ( !value ) {
+    return 'Required'
+  } else {
+    if( value > 1000000)
+      return 'Distance Value is too high!'
   }
 }
 const formSchema = t.struct( {
   title: AlphaNumeric,
-  distance: t.Number
+  distance: distance
 } )
 const options = {
   fields: {
@@ -52,7 +76,7 @@ export default class BufferSettings extends Component {
   checkLayerNameExist = ( name ) => {
     const { urls } = this.props
     this.setState( { loading: true, error: false } )
-    return fetch( `${urls.layersAPI}?typename=geonode:${name}` ).then(
+    return fetch( `${urls.layersAPI}?typename=${this.props.workspace}:${name}` ).then(
       response => response.json() )
   }
   onComplete = () => {
