@@ -101,7 +101,7 @@ ENV/
 
 /node_modules
 
-/static/cartoview_buffer_tool/node_modules
+/static/buffer_tool/node_modules
 
 # api.py development phase
 api_dev.py
