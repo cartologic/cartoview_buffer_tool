@@ -106,7 +106,6 @@ class BufferTool extends Component {
   createBufferedLayer = ( bufferSettings ) => {
     let { config, step } = this.state
     let { distance, newLayerName } = bufferSettings
-    console.log( "BB", bufferSettings )
     distance = distance / distanceRatio
     this.setState( {
       loading: true,
