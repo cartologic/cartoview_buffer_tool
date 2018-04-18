@@ -61,6 +61,10 @@ def update_geonode(request, resource):
     layer.save()
 
 
+def get_access_token(request):
+    return request.session['access_token'] if 'access_token' in request.session else None
+
+
 @login_required
 def generate_layer(request):
     '''
@@ -92,7 +96,8 @@ def generate_layer(request):
             return HttpResponse(json.dumps({"error": "permission error"}), content_type="application/json",
                                 status=405)
 
-        url = geoserver_url + "wps"
+        access_token = get_access_token(request)
+        url = geoserver_url + "wps" if not access_token else geoserver_url + "wps" + "?access_token=%s"%(access_token)
 
         payload = """
         <p0:Execute
@@ -178,7 +183,7 @@ def generate_layer(request):
         headers = {
             'content-type': "application/xml",
             'cache-control': "no-cache",
-        }
+        }          
 
         response = requests.request(
             "POST", url=url, data=payload, headers=headers)
