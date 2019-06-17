@@ -60,7 +60,8 @@ def update_geonode(request, resource):
         "bbox_y1": Decimal(resource.latlon_bbox[3])
     })
     layer.save()
-
+    perms = {u'users': {u'AnonymousUser': [], request.user: [u'view_resourcebase', u'download_resourcebase', u'change_resourcebase_metadata', u'change_layer_data', u'change_layer_style', u'change_resourcebase', u'delete_resourcebase', u'change_resourcebase_permissions', u'publish_resourcebase']}, u'groups': {}}
+    layer.set_permissions(perms)
 
 def get_access_token(request): 
     return request.session['access_token'] if 'access_token' in request.session else None
