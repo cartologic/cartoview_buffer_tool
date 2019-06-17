@@ -21,7 +21,8 @@ from . import APP_NAME, __version__
 
 username, password = ogc_server_settings.credentials
 gs_catalog = Catalog(ogc_server_settings.internal_rest, username, password)
-
+ds_db_name = settings.OGC_SERVER['default']['DATASTORE']
+default_store = settings.DATABASES[ds_db_name]['NAME']
 
 @login_required
 def index(request):
@@ -163,6 +164,14 @@ def generate_layer(request):
             </p0:Input>
             <p0:Input>
               <p1:Identifier
+                xmlns:p1="http://www.opengis.net/ows/1.1">store
+              </p1:Identifier>
+              <p0:Data>
+                <p0:LiteralData>{}</p0:LiteralData>
+              </p0:Data>
+            </p0:Input>
+            <p0:Input>
+              <p1:Identifier
                 xmlns:p1="http://www.opengis.net/ows/1.1">name
               </p1:Identifier>
               <p0:Data>
@@ -178,7 +187,7 @@ def generate_layer(request):
             </p0:RawDataOutput>
           </p0:ResponseForm>
         </p0:Execute>
-        """.format(layer, distance, settings.DEFAULT_WORKSPACE, new_layer_name)
+        """.format(layer, distance, settings.DEFAULT_WORKSPACE, default_store, new_layer_name)
 
         headers = {
             'content-type': "application/xml",
