@@ -144,7 +144,7 @@ export default class LayersList extends Component {
     )
   }
   getLayerTypename = ( layer ) => {
-    return layer.detail_url.split( '/' ).pop()
+    return layer.typename || layer.detail_url.split( '/' ).pop()
   }
   renderLayers() {
     const { layers, selectedLayer } = this.state
