@@ -199,7 +199,8 @@ def generate_layer(request):
             "POST", url=url, data=payload, headers=headers)
         response_layer_name = response.text.split(':').pop(1)
         if response_layer_name == new_layer_name:
-            resource = gs_catalog.get_resource(response_layer_name)
+            gs_layer = gs_catalog.get_layer(response_layer_name)
+            resource = gs_layer.resource
             type_name = "%s:%s" % (resource.workspace.name.encode(
                 'utf-8'), resource.name.encode('utf-8'))
             update_geonode(request, resource)
