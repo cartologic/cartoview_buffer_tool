@@ -6,7 +6,8 @@ from decimal import Decimal
 
 from guardian.shortcuts import get_objects_for_user
 
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
 
@@ -49,9 +50,9 @@ def update_geonode(request, resource):
         "workspace": resource.workspace.name,
         "store": resource.store.name,
         "storeType": resource.store.resource_type,
-        "typename": "%s:%s" % (resource.workspace.name.encode('utf-8'), resource.name.encode('utf-8')),
+        "typename": "%s:%s" % (resource.workspace.name, resource.name),
         "title": resource.title or 'No title provided',
-        "abstract": resource.abstract or unicode(_('No abstract provided')).encode('utf-8'),
+        "abstract": resource.abstract or _('No abstract provided'),
         "owner": request.user,
         "uuid": str(uuid.uuid4()),
         "bbox_x0": Decimal(resource.latlon_bbox[0]),
@@ -95,8 +96,7 @@ def generate_layer(request):
         # check if user has permission to perform this method on geonode
         qs = _get_permitted_queryset(request, 'base.view_resourcebase')
         if not qs.filter(typename__exact=layer):
-            return HttpResponse(json.dumps({"error": "permission error"}), content_type="application/json",
-                                status=405)
+            return JsonResponse({"error": "permission error"}, status=405)
 
         access_token = get_access_token(request) 
         url = geoserver_url + "wps" if not access_token else geoserver_url + "wps" + "?access_token=%s"%(access_token)
@@ -201,15 +201,8 @@ def generate_layer(request):
         if response_layer_name == new_layer_name:
             gs_layer = gs_catalog.get_layer(response_layer_name)
             resource = gs_layer.resource
-            type_name = "%s:%s" % (resource.workspace.name.encode(
-                'utf-8'), resource.name.encode('utf-8'))
+            type_name = "%s:%s" % (resource.workspace.name, resource.name)
             update_geonode(request, resource)
-            return HttpResponse(json.dumps({'type_name': type_name,
-                                            'success': True}),
-                                content_type="application/json",
-                                status=200)
+            return JsonResponse({'type_name': type_name, 'success': True}, status=200)
         else:
-            return HttpResponse(json.dumps({'success': False,
-                                            'server_response': response.text}),
-                                content_type="application/json",
-                                status=500)
+            return JsonResponse({'success': False, 'server_response': response.text}, status=500)
